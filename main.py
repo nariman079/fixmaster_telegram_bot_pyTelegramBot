@@ -5,7 +5,7 @@ import logging
 from telebot import TeleBot, types
 
 from config import settings
-from src.services.registration_organization_srv import GetProfileTelebot
+from organization_bot.src.services import GetProfileTelebot
 
 bot = TeleBot(settings.TELEGRAM_BOT_TOKEN)  # type: ignore
 
@@ -14,6 +14,7 @@ logger.setLevel(logging.DEBUG)
 
 handler = logging.FileHandler('bot.log')
 handler.setLevel(logging.DEBUG)
+
 
 @bot.message_handler(commands=['start'])
 def main(message: types.Message):
