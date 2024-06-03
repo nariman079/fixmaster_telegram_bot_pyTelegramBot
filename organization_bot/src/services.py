@@ -654,6 +654,8 @@ class MasterEditSrv:
                 self._send(
                     text="Введите корректное изображение",
                 )
+                print(_.args)
+
                 self._step(message, self.get_image)
                 return
 
