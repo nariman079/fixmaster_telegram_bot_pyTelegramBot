@@ -9,3 +9,6 @@ services:
     volumes:
       - images:/bot/photos/
       - ./:/bot/
+
+volumes:
+  images:
