@@ -593,7 +593,6 @@ class MasterEditSrv:
 
     def get_name(self, message: Message):
 
-
         if message.text == 'Не изменять':
             self._send(
                 text="Введите фамилию мастера",
@@ -601,13 +600,14 @@ class MasterEditSrv:
             )
             self._step(message, self.get_surname)
             return
-        self.master_data['name'] = message.text
-        self._send(
-            text="Введите фамилию мастера",
-            reply_markup=self.skip_button_markup
-        )
+        else:
+            self.master_data['name'] = message.text
+            self._send(
+                text="Введите фамилию мастера",
+                reply_markup=self.skip_button_markup
+            )
 
-        self._step(message, self.get_surname)
+            self._step(message, self.get_surname)
 
     def get_surname(self, message: Message):
         if message.text == 'Не изменять':
