@@ -580,7 +580,7 @@ class MasterEditSrv:
         self.bot.register_next_step_handler(message, func)
 
     def start(self, message):
-        self.skip_button_markup = ReplyKeyboardMarkup(row_width=1)
+        self.skip_button_markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
         self.skip_button_markup.add(
             KeyboardButton(text='Не изменять')
         )
