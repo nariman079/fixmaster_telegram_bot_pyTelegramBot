@@ -23,11 +23,9 @@ AWS_CUSTOM_URL = os.getenv('AWS_CUSTOM_URL')
 bucket_name = AWS_BUCKET_NAME
 
 session = boto3.Session(
-    aws_access_key_id=(AWS_ACCESS_KEY),
-    aws_secret_access_key=(AWS_SECRET_KEY),
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY,
     region_name="ru-1",
-
-
 )
 
 s3 = session.client(
