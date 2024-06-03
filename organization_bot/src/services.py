@@ -625,7 +625,7 @@ class MasterEditSrv:
         self._step(message, self.get_image)
 
     def get_image(self, message: Message):
-        download_message = None
+        download_message = message
         while True:
             try:
                 if message.text:
@@ -646,7 +646,7 @@ class MasterEditSrv:
                     Bucket=bucket_name,
                     Key=file_info.file_path
                 )
-
+                print("Фотография загрузилась")
                 self.master_data['image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
                 break
 
