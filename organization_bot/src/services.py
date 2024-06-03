@@ -580,7 +580,7 @@ class MasterEditSrv:
         self.bot.register_next_step_handler(message, func)
 
     def start(self, message):
-        self.skip_button_markup = ReplyKeyboardMarkup(row_width=3)
+        self.skip_button_markup = ReplyKeyboardMarkup(row_width=1)
         self.skip_button_markup.add(
             KeyboardButton(text='Не изменять')
         )
@@ -593,7 +593,7 @@ class MasterEditSrv:
 
     def get_name(self, message: Message):
 
-        self.master_data['name'] = message.text
+
         if message.text == 'Не изменять':
             self._send(
                 text="Введите фамилию мастера",
@@ -601,6 +601,7 @@ class MasterEditSrv:
             )
             self._step(message, self.get_surname)
             return
+        self.master_data['name'] = message.text
         self._send(
             text="Введите фамилию мастера",
             reply_markup=self.skip_button_markup
@@ -629,6 +630,7 @@ class MasterEditSrv:
             try:
                 if message.text == 'Не изменять':
                     break
+
                 download_message = self._send(
                     'Загружаем...'
                 )
@@ -644,8 +646,7 @@ class MasterEditSrv:
                     Key=file_info.file_path
                 )
 
-                self.master_data[
-                    'image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
+                self.master_data['image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
                 break
 
             except Exception as _:
@@ -661,7 +662,6 @@ class MasterEditSrv:
                 chat_id=download_message.chat.id,
                 message_id=download_message.id,
                 text="Отлично!\n",
-
             )
         self._send(
             text="Мастер Изменен!",
