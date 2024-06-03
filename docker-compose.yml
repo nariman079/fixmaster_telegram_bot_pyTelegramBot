@@ -7,7 +7,6 @@ services:
     command:
       - python organization_main.py
     volumes:
-      - images:/bot/photos/
       - ./:/bot/
 
 volumes:
