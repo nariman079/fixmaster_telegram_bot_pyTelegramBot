@@ -9,3 +9,11 @@ services:
     volumes:
       - ./:/bot/
 
+  moderator_app:
+    build: .
+    restart: unless-stopped
+    command: /bin/bash -c "python /bot/moderator_app.py"
+    network_mode: 'host'
+    volumes:
+      - ./:/bot/
+
