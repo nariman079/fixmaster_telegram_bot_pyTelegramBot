@@ -628,9 +628,9 @@ class MasterEditSrv:
         download_message = message
         while True:
             try:
-                if message.text:
-                    if message.text == 'Не изменять':
-                        break
+
+                if message.text == 'Не изменять':
+                    break
 
                 download_message = self._send(
                     'Загружаем...'
@@ -640,7 +640,7 @@ class MasterEditSrv:
                 downloaded_file = self.bot.download_file(file_info.file_path)
                 with open(file_info.file_path, 'wb') as file:
                     file.write(downloaded_file)
-
+                print("Началась загрузка фотографии загрузилась")
                 s3.upload_file(
                     Filename=file_info.file_path,
                     Bucket=bucket_name,
