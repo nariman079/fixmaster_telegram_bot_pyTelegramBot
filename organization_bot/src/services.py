@@ -636,6 +636,8 @@ class MasterEditSrv:
                     'Загружаем...'
                 )
                 file_id = message.photo[-1].file_id
+                print("Получаем файл", file_id)
+
                 file_info = self.bot.get_file(file_id)
                 print("Получаем файл", file_info.__dict__)
 
