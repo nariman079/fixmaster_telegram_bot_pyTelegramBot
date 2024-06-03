@@ -12,7 +12,7 @@ services:
   moderator_app:
     build: .
     restart: unless-stopped
-    command: /bin/bash -c "python /bot/moderator_app.py"
+    command: /bin/bash -c "python /bot/moderator_main.py"
     network_mode: 'host'
     volumes:
       - ./:/bot/
