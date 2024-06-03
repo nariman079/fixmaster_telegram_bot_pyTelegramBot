@@ -30,4 +30,4 @@ session = boto3.Session(
 
 s3 = session.client(
     "s3", endpoint_url=AWS_UPLOAD_URL)
-
+print(s3)
