@@ -519,11 +519,16 @@ class MasterCreateSrv:
                     'Загружаем...'
                 )
                 file_id = message.photo[-1].file_id
+                print("Получаем файл", file_id)
+
                 file_info = self.bot.get_file(file_id)
+                print("Получаем файл", file_info.__dict__)
+
                 downloaded_file = self.bot.download_file(file_info.file_path)
+                print("Началась загрузка фотографии загрузилась 1")
                 with open(file_info.file_path, 'wb') as file:
                     file.write(downloaded_file)
-
+                print("Началась загрузка фотографии загрузилась 2")
                 s3.upload_file(
                     Filename=file_info.file_path,
                     Bucket=bucket_name,
