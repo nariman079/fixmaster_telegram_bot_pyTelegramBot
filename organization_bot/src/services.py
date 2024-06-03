@@ -628,8 +628,9 @@ class MasterEditSrv:
         download_message = None
         while True:
             try:
-                if message.text == 'Не изменять':
-                    break
+                if message.text:
+                    if message.text == 'Не изменять':
+                        break
 
                 download_message = self._send(
                     'Загружаем...'
