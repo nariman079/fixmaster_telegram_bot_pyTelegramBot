@@ -8,7 +8,6 @@ fix_master_client = FixMasterClient(
 )
 
 
-
 class ModeratorCreate:
     """ Логика создания организаций """
 

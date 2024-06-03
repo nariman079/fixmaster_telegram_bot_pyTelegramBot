@@ -1,14 +1,20 @@
-from requests import get, post
+from requests import get, post, delete, Response, put, patch
 
 
 class FixMasterClient:
-    BASE_URL = 'https://booking.fix-mst.ru/bot-api'
-    GET_ACCOUNT_URL = BASE_URL + '/get-my-profile/'
-    GET_MODERATOR_URL = BASE_URL + '/moderator/'
+    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][1]
     CREATE_ORGANIZATION_URL = BASE_URL + '/organization/create/'
     ORGANIZATION_TYPES_URL = 'https://booking.fix-mst.ru/api/organizations-types/'
     VERIFY_ORGANIZATION_URL = BASE_URL + '/organization/verify/'
+    DELETE_MASTER_URL = BASE_URL + '/masters/'
+    CREATE_MASTER_URL = BASE_URL + '/masters/'
+    EDIT_MASTER_URL = BASE_URL + '/masters/'
+    MASTER_SERVICES_URL = BASE_URL + '/masters/{}/services/'
+    SERVICE_DETAIL_URL = BASE_URL + '/service/{}'
     GET_ORGANIZATION_BY_TELEGRAM_ID_URL = BASE_URL + '/organization/get-by-telegram_id/'
+    GET_ORGANIZATION_DATA_BY_TELEGRAM_ID_URL = BASE_URL + '/organization-data/get-by-telegram_id/'
+    GET_ACCOUNT_URL = BASE_URL + '/get-my-profile/'
+    GET_MODERATOR_URL = BASE_URL + '/moderator/'
 
     def __init__(self, api_key: str):
         self.api_key = api_key
@@ -60,7 +66,31 @@ class FixMasterClient:
         )
         return response.json()
 
-    def get_moderator(self, moderator_data: dict):
+    def verify_organization(self, organization_id: int, verify: bool):
+        response = post(
+            self.VERIFY_ORGANIZATION_URL + f'{organization_id}/',
+            headers=self.headers,
+            json={
+                'is_verify': verify
+            },
+        )
+        return response
+
+    def get_organization_by_telegram_id(self, telegram_id: str):
+        response = get(
+            self.GET_ORGANIZATION_BY_TELEGRAM_ID_URL + f'{telegram_id}',
+            headers=self.headers,
+        )
+        return response
+
+    def get_organization_data_by_telegram_id(self, telegram_id: str) -> Response:
+        response = get(
+            self.GET_ORGANIZATION_DATA_BY_TELEGRAM_ID_URL + f'{telegram_id}',
+            headers=self.headers,
+        )
+        return response
+
+    def get_moderator(self, moderator_data: dict) -> Response:
         response = post(
             self.GET_MODERATOR_URL,
             headers=self.headers,
@@ -68,22 +98,49 @@ class FixMasterClient:
         )
         return response
 
-    def verify_organization(self, organization_id: int, verify: bool):
+    def delete_master(self, master_id: int) -> int:
+        response = delete(
+            self.DELETE_MASTER_URL + f"{master_id}",
+            headers=self.headers
+        )
+        return response.status_code
+
+    def create_master(self, master_data: dict) -> Response:
         response = post(
-            self.VERIFY_ORGANIZATION_URL+f'{organization_id}/',
-             headers=self.headers,
-            json={
-                'is_verify': verify
-            },
-        )
-        print(response.status_code)
-        return response
-
-    def get_organization_by_telegram_id(self, telegram_id: int):
-        response = get(
-            self.GET_ORGANIZATION_BY_TELEGRAM_ID_URL + f'{telegram_id}',
+            self.CREATE_MASTER_URL,
             headers=self.headers,
+            json=master_data
+        )
+        print(response.json())
+        return response
+
+    def edit_master(self, master_data: dict, master_id: int) -> Response:
+        response = patch(
+            self.EDIT_MASTER_URL + f"{master_id}",
+            headers=self.headers,
+            json=master_data
         )
         return response
 
-    def get_organization_data(self, telegram_id):
+    def get_master_services(self, master_id: int) -> Response:
+        response = get(
+            self.MASTER_SERVICES_URL.format(master_id),
+            headers=self.headers
+        )
+        return response
+
+    def get_service_detail(self, service_id: int) -> Response:
+        response = get(
+            self.SERVICE_DETAIL_URL.format(service_id),
+            headers=self.headers
+        )
+        return response
+
+    def create_service(self, service_data: dict, master_id: int) -> Response:
+        response = post(
+            self.MASTER_SERVICES_URL.format(master_id),
+            headers=self.headers,
+            json=service_data,
+        )
+        print(response.json())
+        return response

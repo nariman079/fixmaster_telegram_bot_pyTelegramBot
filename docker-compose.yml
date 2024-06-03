@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  organization_app:
+    build: .
+    restart: unless-stopped
+    command:
+      - python organization_main.py
+    volumes:
+      - images:/bot/photos/
+      - ./:/bot/

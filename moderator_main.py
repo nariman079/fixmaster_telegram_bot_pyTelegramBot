@@ -4,7 +4,7 @@ Main file
 from telebot import TeleBot, types
 
 from config import settings
-from moderator_bot.services import ModeratorCreate, VerifiedOrganization
+from moderator_bot.src.services import ModeratorCreate, VerifiedOrganization
 
 
 bot = TeleBot(settings.MODERATOR_BOT_TOKEN)  # type: ignore
