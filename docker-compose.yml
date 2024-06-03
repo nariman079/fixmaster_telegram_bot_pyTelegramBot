@@ -4,8 +4,7 @@ services:
   organization_app:
     build: .
     restart: unless-stopped
-    command:
-      - python /bot/organization_main.py
+    command: /bin/bash -c "python /bot/organization_main.py"
     volumes:
       - ./:/bot/
 
