@@ -110,9 +110,12 @@ def generate_master_detail_data(master_data: dict) -> str:
     print(result_message)
     return result_message
 
-
-
-
+def generate_service_detail_data(service_data: dict) -> str:
+    result_message = ""
+    for key, value in service_data.items():
+        result_message += f"{key}: {value}\n"
+    print(result_message)
+    return result_message
 
 def get_master_services(master_id: int):
     response = fix_master_client.get_master_services(
@@ -141,15 +144,20 @@ class GetProfileTelebot:
         """ Получение данных телефона """
 
         try:
-            self.phone_number, self.user_keyword = message.text.split(' ')
+            self.phone_number = message.text
+            self.bot.send_message(
+                chat_id=message.chat.id,
+                text="Теперь введите код"
+            )
         except:
             self.bot.send_message(
                 chat_id=message.chat.id,
-                text="Вы ввели неправильный формат\nПопробуйте еще раз.\nПример: 8999 word"
+                text="Вы ввели неправильный формат\nПопробуйте еще раз.\nПример: 89990001122"
             )
             self.bot.register_next_step_handler(message, self.get_number)
             return
 
+    def get_code(self, message: Message):
         response_data = fix_master_client.get_profile(
             phone_number=self.phone_number,
             user_keyword=self.user_keyword,
@@ -765,21 +773,23 @@ class MasterServiceDetailSrv:
     def get_service_detail(self):
         self.service_detail = get_service_detail(self.service_id)
 
-    def generate_master_detail_buttons(self):
-        self.master_detail_buttons = InlineKeyboardMarkup()
-        edit_button = InlineKeyboardButton('Изменить', callback_data=f"masteredit_{self.master_data.get('id')}")
-        delete_button = InlineKeyboardButton('Удалить', callback_data=f"masterdelete_{self.master_data.get('id')}")
-        back_button = InlineKeyboardButton('Назад', callback_data=f"masterservices_list_{self.message.chat.id}")
-        self.master_detail_buttons.add(edit_button)
-        self.master_detail_buttons.add(delete_button)
-        self.master_detail_buttons.add(back_button)
+    def generate_service_list_buttons(self):
+        self.service_detail_buttons = InlineKeyboardMarkup()
+        edit_button = InlineKeyboardButton('Изменить', callback_data=f"mastereservice_edit_{self.service_detail.get('id')}")
+        delete_button = InlineKeyboardButton('Удалить', callback_data=f"masterservice_delete_{self.service_detail.get('id')}")
+        back_button = InlineKeyboardButton('Назад', callback_data=f"masterservices_list_{self.service_detail.get('master_id')}")
+        self.service_detail_buttons.add(edit_button)
+        self.service_detail_buttons.add(delete_button)
+        self.service_detail_buttons.add(back_button)
 
     def execute(self):
         self.get_service_detail()
         self.generate_service_list_buttons()
-        self._send(
-            text=f"Список услуг:\nУ вас {len(self.services_list)} услуг",
-            reply_markup=self.services_list_buttons
+        self.bot.edit_message_text(
+            text=" услуг",
+            chat_id=self.message.chat.id,
+            message_id=self.message.id,
+            reply_markup=self.service_detail_buttons
         )
         return None
 
@@ -881,4 +891,22 @@ class MasterServiceEditSrv:
 
 
 class MasterServiceDeleteSrv:
-    ...
+    def __init__(self,
+                 bot: TeleBot,
+                 message: Message,
+                 service_id: int):
+        self.bot = bot
+        self.message = message
+        self.service_id = service_id
+
+    def delete_service(self):
+        fix_master_client.delete_service(service_id=self.service_id)
+
+    def execute(self):
+        self.delete_service()
+        self.bot.edit_message_text(
+            text="Услуга удалена",
+            chat_id=self.message.chat.id,
+            message_id=self.message.id,
+        )
+        return None

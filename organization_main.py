@@ -80,6 +80,7 @@ def callback_query(call: types.CallbackQuery):
         ).execute()
     elif 'masterservice_detail' in data:
         service_id = data.split('_')[-1]
+        print(service_id)
         MasterServiceDetailSrv(
             bot=bot,
             message=call.message,
@@ -107,7 +108,6 @@ def callback_query(call: types.CallbackQuery):
             bot=bot,
             message=call.message,
             service_id=int(service_id)
-
         )
 if __name__ == '__main__':
     bot.polling(none_stop=True)

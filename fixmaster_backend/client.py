@@ -2,7 +2,7 @@ from requests import get, post, delete, Response, put, patch
 
 
 class FixMasterClient:
-    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][0]
+    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][1]
     CREATE_ORGANIZATION_URL = BASE_URL + '/organization/create/'
     ORGANIZATION_TYPES_URL = 'https://booking.fix-mst.ru/api/organizations-types/'
     VERIFY_ORGANIZATION_URL = BASE_URL + '/organization/verify/'
@@ -10,7 +10,7 @@ class FixMasterClient:
     CREATE_MASTER_URL = BASE_URL + '/masters/'
     EDIT_MASTER_URL = BASE_URL + '/masters/'
     MASTER_SERVICES_URL = BASE_URL + '/masters/{}/services/'
-    SERVICE_DETAIL_URL = BASE_URL + '/service/{}'
+    SERVICE_DETAIL_URL = BASE_URL + '/service/'
     GET_ORGANIZATION_BY_TELEGRAM_ID_URL = BASE_URL + '/organization/get-by-telegram_id/'
     GET_ORGANIZATION_DATA_BY_TELEGRAM_ID_URL = BASE_URL + '/organization-data/get-by-telegram_id/'
     GET_ACCOUNT_URL = BASE_URL + '/get-my-profile/'
@@ -131,8 +131,11 @@ class FixMasterClient:
 
     def get_service_detail(self, service_id: int) -> Response:
         response = get(
-            self.SERVICE_DETAIL_URL.format(service_id),
-            headers=self.headers
+            self.SERVICE_DETAIL_URL,
+            headers=self.headers,
+            params={
+                'service_id': service_id
+            }
         )
         return response
 
@@ -143,4 +146,14 @@ class FixMasterClient:
             json=service_data,
         )
         print(response.json())
+        return response
+
+    def delete_service(self, service_id: int) -> Response:
+        response = delete(
+            self.SERVICE_DETAIL_URL,
+            headers=self.headers,
+            params={
+                'service_id': service_id
+            }
+        )
         return response
