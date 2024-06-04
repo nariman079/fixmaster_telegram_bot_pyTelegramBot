@@ -102,6 +102,7 @@ def generate_service_min_time_button():
     ]
     return markup
 
+
 def generate_master_detail_data(master_data: dict) -> str:
     result_message = ""
     master_data.pop('services')
@@ -110,12 +111,14 @@ def generate_master_detail_data(master_data: dict) -> str:
     print(result_message)
     return result_message
 
+
 def generate_service_detail_data(service_data: dict) -> str:
     result_message = ""
     for key, value in service_data.items():
         result_message += f"{key}: {value}\n"
     print(result_message)
     return result_message
+
 
 def get_master_services(master_id: int):
     response = fix_master_client.get_master_services(
@@ -444,7 +447,7 @@ class MasterDeleteSrv:
         self.master_list = get_organization_data(self.message.chat.id)['masters']
         self.master_list_buttons = InlineKeyboardMarkup()
         [self.master_list_buttons.add(InlineKeyboardButton(text=f"{i.get('name')} {i.get('surname')}",
-                                                       callback_data=f"masterdetail_{i.get('id')}"))
+                                                           callback_data=f"masterdetail_{i.get('id')}"))
          for i in self.master_list]
 
     def delete_master(self):
@@ -640,7 +643,7 @@ class MasterEditSrv:
         self._step(message, self.get_image)
 
     def get_image(self, message: Message):
-        download_message = message
+        download_message = None
         while True:
             try:
 
@@ -667,7 +670,8 @@ class MasterEditSrv:
                     Key=file_info.file_path
                 )
                 print("Фотография загрузилась")
-                self.master_data['image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
+                self.master_data[
+                    'image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
                 break
 
             except Exception as _:
@@ -775,9 +779,12 @@ class MasterServiceDetailSrv:
 
     def generate_service_list_buttons(self):
         self.service_detail_buttons = InlineKeyboardMarkup()
-        edit_button = InlineKeyboardButton('Изменить', callback_data=f"mastereservice_edit_{self.service_detail.get('id')}")
-        delete_button = InlineKeyboardButton('Удалить', callback_data=f"masterservice_delete_{self.service_detail.get('id')}")
-        back_button = InlineKeyboardButton('Назад', callback_data=f"masterservices_list_{self.service_detail.get('master_id')}")
+        edit_button = InlineKeyboardButton('Изменить',
+                                           callback_data=f"mastereservice_edit_{self.service_detail.get('id')}")
+        delete_button = InlineKeyboardButton('Удалить',
+                                             callback_data=f"masterservice_delete_{self.service_detail.get('id')}")
+        back_button = InlineKeyboardButton('Назад',
+                                           callback_data=f"masterservices_list_{self.service_detail.get('master_id')}")
         self.service_detail_buttons.add(edit_button)
         self.service_detail_buttons.add(delete_button)
         self.service_detail_buttons.add(back_button)
@@ -882,12 +889,121 @@ class MasterServiceCreateSrv:
         fix_master_client.create_service(self.service_data, self.master_id)
 
 
-
 class MasterServiceEditSrv:
-    ...
+    def __init__(self,
+                 bot: TeleBot,
+                 message: Message,
+                 service_id: int):
+        self.bot = bot
+        self.message = message
+        self.service_data = dict()
+        self.service_id = service_id
+        self.start(message)
 
+    def _send(self, text, **kwargs):
+        message = self.bot.send_message(
+            chat_id=self.message.chat.id,
+            text=text,
+            **kwargs
+        )
+        return message
 
+    def _step(self, message, func):
+        self.bot.register_next_step_handler(message, func)
 
+    def start(self, message):
+        self.skip_button_markup = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+        self.skip_button_markup.add(
+            KeyboardButton(text='Не изменять')
+        )
+        self._send(
+            text="Введите название услуги \n или нажмине 'Не изменять'",
+            reply_markup=self.skip_button_markup
+        )
+
+        self._step(message, self.get_title)
+
+    def get_title(self, message: Message):
+        if message.text == 'Не изменять':
+            self._send(
+                text="Введите короткое описание услуги",
+                reply_markup=self.skip_button_markup
+            )
+            self._step(message, self.get_description)
+            return
+        self.service_data['title'] = message.text
+        self._send(
+            text="Введите короткое описание услуги",
+            reply_markup=self.skip_button_markup
+        )
+
+        self._step(message, self.get_description)
+
+    def get_description(self, message: Message):
+        new_skip_button_markup = generate_service_min_time_button()
+        new_skip_button_markup.add(KeyboardButton(text='Не изменять'))
+        if message.text == 'Не изменять':
+            self._send(
+                text="Выберите длительность услуги",
+                reply_markup=new_skip_button_markup
+            )
+            self._step(message, self.get_min_time)
+            return
+        self.service_data['short_description'] = message.text
+
+        # next msg
+        self._send(
+            text="Выберите длительность услуги",
+            reply_markup=generate_service_min_time_button()
+        )
+        self._step(message, self.get_min_time)
+
+    def get_min_time(self, message: Message):
+        if message.text == 'Не изменять':
+            self._send(
+                text="Введите стоимость услуги в рублях",
+                reply_markup=self.skip_button_markup
+            )
+            self._step(message, self.get_price)
+            return
+        # msg
+        try:
+            if 'мин' in message.text:
+                time = message.text.replace('мин', '')
+                int(time)
+                self.service_data['min_time'] = time
+
+        except ValueError:
+            self._send(
+                text="Выберите число из списка"
+            )
+            self._step(message, self.get_min_time)
+            return
+        self._send(
+            text="Введите стоимость услуги в рублях",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        self._step(message, self.get_price)
+
+    def get_price(self, message: Message):
+        if message.text == 'Не изменять':
+            pass
+        else:
+            self.service_data['price'] = message.text
+            try:
+                int(message.text)
+            except ValueError:
+                self._send(
+                    text="Введите корректную стоимость "
+                )
+                self._step(message, self.get_price)
+                return
+
+        self._send(
+            text="Услуга изменена",
+            reply_markup=organization_menu_markup
+        )
+        fix_master_client.edit_service(service_id=self.service_id, service_data=self.service_data)
 
 
 class MasterServiceDeleteSrv:

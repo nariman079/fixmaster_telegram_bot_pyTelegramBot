@@ -2,7 +2,7 @@ from requests import get, post, delete, Response, put, patch
 
 
 class FixMasterClient:
-    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][0]
+    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][1]
     CREATE_ORGANIZATION_URL = BASE_URL + '/organization/create/'
     ORGANIZATION_TYPES_URL = 'https://booking.fix-mst.ru/api/organizations-types/'
     VERIFY_ORGANIZATION_URL = BASE_URL + '/organization/verify/'
@@ -156,4 +156,16 @@ class FixMasterClient:
                 'service_id': service_id
             }
         )
+        return response
+
+    def edit_service(self, service_id: int, service_data: dict):
+        response = patch(
+            self.SERVICE_DETAIL_URL,
+            json=service_data,
+            headers=self.headers,
+            params={
+                'service_id': service_id
+            }
+        )
+
         return response
