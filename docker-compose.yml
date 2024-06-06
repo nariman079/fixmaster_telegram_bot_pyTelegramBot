@@ -17,3 +17,10 @@ services:
     volumes:
       - ./:/bot/
 
+  master_app:
+    build: .
+    restart: unless-stopped
+    command: /bin/bash -c "python /bot/master_main.py"
+    network_mode: 'host'
+    volumes:
+      - ./:/bot/

@@ -9,7 +9,12 @@ class FixMasterClient:
     DELETE_MASTER_URL = BASE_URL + '/masters/'
     CREATE_MASTER_URL = BASE_URL + '/masters/'
     EDIT_MASTER_URL = BASE_URL + '/masters/'
+
+    MASTER_VERIFY_URL = BASE_URL + '/master/verify/'
+    MASTER_CUSTOMERS_URL = BASE_URL + '/master/{}/customers/'
     MASTER_SERVICES_URL = BASE_URL + '/masters/{}/services/'
+    MASTER_LAST_BOOKING_URL = BASE_URL + '/master/{}/last-booking/'
+
     SERVICE_DETAIL_URL = BASE_URL + '/service/'
     GET_ORGANIZATION_BY_TELEGRAM_ID_URL = BASE_URL + '/organization/get-by-telegram_id/'
     GET_ORGANIZATION_DATA_BY_TELEGRAM_ID_URL = BASE_URL + '/organization-data/get-by-telegram_id/'
@@ -168,4 +173,26 @@ class FixMasterClient:
             }
         )
 
+        return response
+
+    def master_verify(self, master_data: dict) -> Response:
+        response = post(
+            self.MASTER_VERIFY_URL,
+            headers=self.headers,
+            json=master_data
+        )
+        return response
+
+    def master_clients(self, telegram_id: int) -> Response:
+        response = get(
+            self.MASTER_CUSTOMERS_URL.format(telegram_id),
+            headers=self.headers,
+        )
+        return response
+
+    def master_last_booking(self, telegram_id: int) -> Response:
+        response = get(
+            self.MASTER_LAST_BOOKING_URL.format(telegram_id),
+            headers=self.headers,
+        )
         return response
