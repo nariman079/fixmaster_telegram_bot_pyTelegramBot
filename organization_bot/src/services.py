@@ -1,5 +1,10 @@
 import dataclasses
+import os
 import re
+import shutil
+import uuid
+from os import listdir
+from os.path import isfile, join
 
 from telebot import TeleBot
 from telebot.types import (Message,
@@ -22,12 +27,10 @@ organization_menu_markup = ReplyKeyboardMarkup()
 master_list = KeyboardButton("📃 Список мастеров")
 client_list = KeyboardButton('👥 Список клиентов')
 add_master = KeyboardButton('➕ Добавить мастера')
-add_service = KeyboardButton('➕ Добавить услугу')
 
-organization_menu_markup.add(master_list)
-organization_menu_markup.add(client_list)
+
+organization_menu_markup.row(master_list, client_list)
 organization_menu_markup.add(add_master)
-organization_menu_markup.add(add_service)
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -260,7 +263,8 @@ class OrganizationCreate:
                 )
 
                 self.organization[
-                    'main_image_url'] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
+                    'main_image_url'
+                ] = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_info.file_path}"
                 break
 
             except Exception as _:
@@ -277,11 +281,39 @@ class OrganizationCreate:
             text="Отлично!\n",
         )
         self._send(
-            text='Теперь выберите тип вашей организации!',
-            reply_markup=generate_organization_types_buttons()
+            text='Выберите фотографии вашей организации!'
         )
-        self._step(message, self.get_organization_type)
+        self._step(message, self.get_organization_gallery)
 
+    def get_organization_gallery(self, message):
+        try:
+            file_id = message.photo[-1].file_id
+            file_info = self.bot.get_file(file_id)
+            downloaded_file = self.bot.download_file(file_info.file_path)
+
+            path = f'photos/{message.from_user.username}/'
+            if not os.path.isdir(path):
+                os.mkdir(path)
+
+            file_path = os.path.join(path, f"{str(uuid.uuid4())}.jpg")
+            with open(file_path, 'wb') as file:
+                file.write(downloaded_file)
+
+            s3.upload_file(
+                Filename=file_path,
+                Bucket=bucket_name,
+                Key=file_path
+            )
+            self._send(
+                text='Теперь выберите тип вашей организации!',
+                reply_markup=generate_organization_types_buttons()
+            )
+            self._step(message, self.get_organization_type)
+        except:
+            self._send(
+                text='Выберите корректные фотографии',
+            )
+            self._step(message, self.get_organization_type)
     def get_organization_type(self, message: Message):
         self.organization['organization_type_id'] = get_organization_type_id(message.text)
 
@@ -331,7 +363,13 @@ class OrganizationCreate:
         )
         print(self.organization)
         self.organization['telegram_id'] = self.message.chat.id
+        path = f'photos/{message.from_user.username}/'
+        s3_url = "https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/" + path
+        self.organization['gallery'] = [s3_url + f for f in listdir(path) if isfile(join(path, f))]
+
         fix_master_client.create_organization(self.organization)
+        print(self.organization)
+        shutil.rmtree(path)
 
 
 class MasterListSrv:

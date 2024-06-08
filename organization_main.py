@@ -1,9 +1,13 @@
 """
 Main file
 """
+import os
+import uuid
+
 from telebot import TeleBot, types
 
 from config import settings, cache
+from config.settings import bucket_name, s3
 from organization_bot.src.services import OrganizationCreate, MasterListSrv, MasterDetailSrv, \
     MasterDeleteSrv, MasterCreateSrv, MasterEditSrv, MasterServiceListSrv, MasterServiceListSrv, \
     MasterServiceDetailSrv, MasterServiceEditSrv, MasterServiceCreateSrv, MasterServiceDeleteSrv
@@ -53,7 +57,7 @@ def callback_query(call: types.CallbackQuery):
         MasterDetailSrv(bot=bot,
                         master_id=int(master_id),
                         call=call,
-        ).execute()
+                        ).execute()
     elif 'masterdelete' in data:
         master_id = data.split('_')[-1]
         MasterDeleteSrv(bot=bot,
@@ -109,5 +113,31 @@ def callback_query(call: types.CallbackQuery):
             message=call.message,
             service_id=int(service_id)
         )
+
+
+@bot.message_handler(content_types=['photo'])
+def photo(message: types.Message) -> None:
+    file_id = message.photo[-1].file_id
+    file_info = bot.get_file(file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+
+    path = f'photos/{message.from_user.username}/'
+    if not os.path.isdir(path):
+        os.mkdir(path)
+
+    file_path = os.path.join(path, f"{str(uuid.uuid4())}.jpg")
+    with open(file_path, 'wb') as file:
+        file.write(downloaded_file)
+
+    s3.upload_file(
+        Filename=file_path,
+        Bucket=bucket_name,
+        Key=file_path
+    )
+
+    url = f"https://s3.timeweb.cloud/dea7d49e-ba387d71-db58-4c7f-8b19-e217f5775615/{file_path}"
+    print(url)
+
+
 if __name__ == '__main__':
     bot.polling(none_stop=True)
