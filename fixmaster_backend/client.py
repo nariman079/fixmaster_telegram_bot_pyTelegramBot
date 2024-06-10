@@ -2,7 +2,7 @@ from requests import get, post, delete, Response, put, patch
 
 
 class FixMasterClient:
-    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][1]
+    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][0]
     CREATE_ORGANIZATION_URL = BASE_URL + '/organization/create/'
     ORGANIZATION_TYPES_URL = 'https://booking.fix-mst.ru/api/organizations-types/'
     VERIFY_ORGANIZATION_URL = BASE_URL + '/organization/verify/'
@@ -15,7 +15,11 @@ class FixMasterClient:
     MASTER_SERVICES_URL = BASE_URL + '/masters/{}/services/'
     MASTER_LAST_BOOKING_URL = BASE_URL + '/master/{}/last-booking/'
 
+    CUSTOMER_LAST_BOOKING_URL = BASE_URL + '/customer/{}/last-booking/'
+    CUSTOMER_VERIFY_URL = BASE_URL + '/customer/verify/'
+    CUSTOMER_CHECK_URL = BASE_URL + '/customer/check/'
     SERVICE_DETAIL_URL = BASE_URL + '/service/'
+
     GET_ORGANIZATION_BY_TELEGRAM_ID_URL = BASE_URL + '/organization/get-by-telegram_id/'
     GET_ORGANIZATION_DATA_BY_TELEGRAM_ID_URL = BASE_URL + '/organization-data/get-by-telegram_id/'
     GET_ACCOUNT_URL = BASE_URL + '/get-my-profile/'
@@ -190,9 +194,34 @@ class FixMasterClient:
         )
         return response
 
-    def master_last_booking(self, telegram_id: int) -> Response:
+    def master_last_booking(self, telegram_id: int | str) -> Response:
         response = get(
             self.MASTER_LAST_BOOKING_URL.format(telegram_id),
             headers=self.headers,
+        )
+        return response
+
+    def customer_last_booking(self, telegram_id: int | str) -> Response:
+        response = get(
+            self.CUSTOMER_LAST_BOOKING_URL.format(telegram_id),
+            headers=self.headers
+        )
+        return response
+
+    def customer_verify(self, verify_data:dict) -> Response:
+        response = get(
+            self.CUSTOMER_VERIFY_URL,
+            headers=self.headers,
+            json=verify_data
+        )
+        return response
+
+    def check_customer(self, telegram_id: int) -> Response:
+        response = post(
+            self.CUSTOMER_CHECK_URL,
+            headers=self.headers,
+            params={
+                'telegram_id': telegram_id,
+            }
         )
         return response

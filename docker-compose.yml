@@ -24,3 +24,11 @@ services:
     network_mode: 'host'
     volumes:
       - ./:/bot/
+
+  customer_app:
+    build: .
+    restart: unless-stopped
+    command: /bin/bash -c "python /bot/customer_main.py"
+    network_mode: 'host'
+    volumes:
+      - ./:/bot/
