@@ -609,9 +609,9 @@ class MasterCreateSrv:
         )
         self.master_data['organization_id'] = get_organization_data(self.message.chat.id).get('id')
         response = fix_master_client.create_master(self.master_data)
-        print(response.json())
+        code = response.json()['data']
         self._send(
-            text=response.text
+            text=f"Перешлите это сообщение мастеру\nhttps://t.me/fix_master_employee_bot/?text={code}"
         )
 
 
