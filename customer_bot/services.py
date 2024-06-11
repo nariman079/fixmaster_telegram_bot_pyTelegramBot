@@ -58,7 +58,8 @@ class CustomerAuthorizationSrv:
         response = fix_master_client.customer_verify(
             verify_data={
                 'telegram_id': self.telegram_id,
-                'code': code
+                'code': code,
+                'username': message.from_user.username
             }
         )
         print(response.text)
