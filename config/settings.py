@@ -3,6 +3,7 @@ Project settings
 """
 import os
 from pathlib import Path
+from botocore.config import Config
 import boto3
 
 from dotenv import load_dotenv
@@ -25,9 +26,18 @@ bucket_name = AWS_BUCKET_NAME
 session = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY,
     aws_secret_access_key=AWS_SECRET_KEY,
-    region_name="ru-1",
+    region_name="us-east-1",
 )
 
 s3 = session.client(
-    "s3", endpoint_url=AWS_UPLOAD_URL)
+    "s3", 
+    endpoint_url=AWS_UPLOAD_URL,
+    config=Config(
+        signature_version="s3v4",       # ← обязательно для MinIO
+        s3={
+            "addressing_style": "path"  # ← ✅ path-style: bucket в URL как /bucket/key
+                                            # (обходит проблемы с DNS и virtual-hosted)
+        }
+    ),use_ssl=AWS_UPLOAD_URL.startswith("https")
+)
 print(s3)

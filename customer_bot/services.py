@@ -70,9 +70,11 @@ class CustomerAuthorizationSrv:
                 reply_markup=web_app_keyboard(self.telegram_id)
             )
             return
+      
+
         self.bot.send_message(
             chat_id=self.telegram_id,
-            text=response.json()['message']
+            text=response.json()['message'] 
         )
 
 

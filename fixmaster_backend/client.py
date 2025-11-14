@@ -2,9 +2,9 @@ from requests import get, post, delete, Response, put, patch
 
 
 class FixMasterClient:
-    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://localhost:8000/bot-api'][0]
+    BASE_URL = ['https://booking.fix-mst.ru/bot-api', 'http://app:8000/bot-api'][1]
     CREATE_ORGANIZATION_URL = BASE_URL + '/organization/create/'
-    ORGANIZATION_TYPES_URL = 'https://booking.fix-mst.ru/api/organizations-types/'
+    ORGANIZATION_TYPES_URL = 'http://app:8000/api/organizations-types/'
     VERIFY_ORGANIZATION_URL = BASE_URL + '/organization/verify/'
     DELETE_MASTER_URL = BASE_URL + '/masters/'
     CREATE_MASTER_URL = BASE_URL + '/masters/'

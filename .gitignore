@@ -3,3 +3,6 @@
 venv/
 db.sqlite3
 images/
+photos/
+minio-data/
+**/__pycache__/** 
